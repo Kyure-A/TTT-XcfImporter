@@ -1,0 +1,6 @@
+* TTT-XcfImporter
+An experimental package for importing [[https://www.gimp.org/][GIMP]]'s native image format, XCF, in a manner similar to the [[https://ttt.rs64.net/en/docs/Reference/TexTransToolPSDImporter][TexTransTool PSD Importer]].
+
+** Thanks
+https://github.com/ReinaS-64892/TTT-ClipImporter
+https://github.com/shivshank/xcf-rs
