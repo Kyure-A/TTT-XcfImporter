@@ -1,0 +1,20 @@
+{
+    "name": "moe.kyre.ttt-xcf-importer.editor",
+    "rootNamespace": "",
+    "references": [
+        "net.rs64.multi-layer-image-data",
+        "net.rs64.tex-trans-tool.editor",
+        "net.rs64.tex-trans-tool.runtime",
+        "moe.kyre.ttt-xcf-importer.runtime",
+        "moe.kyre.ttt-xcf-parser"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
