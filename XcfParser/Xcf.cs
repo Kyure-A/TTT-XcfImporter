@@ -50,7 +50,7 @@ namespace moe.kyre.TTTXcf.parser
         public uint Height => Header.Height;
         public (uint Width, uint Height) Dimensions => (Width, Height);
 
-        public Layer? Layer(string name)
+        public Layer? GetLayer(string name)
         {
             foreach (var layer in layers)
             {
