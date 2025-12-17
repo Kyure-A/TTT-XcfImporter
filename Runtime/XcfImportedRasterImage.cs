@@ -1,11 +1,12 @@
 using System;
 using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransTool.MultiLayerImage.LayerData;
 using UnityEngine;
 
 namespace moe.kyre.TTTXcf.Importer
 {
     [Serializable]
-    public class XcfImportedRasterImageData : net.rs64.TexTransTool.MultiLayerImage.LayerData.ImportRasterImageData
+    public class XcfImportedRasterImageData : ImportRasterImageData
     {
         public int Width;
         public int Height;
