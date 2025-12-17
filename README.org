@@ -1,11 +1,23 @@
 * TTT-XcfImporter
 An experimental package for importing [[https://www.gimp.org/][GIMP]]'s native image format, XCF, in a manner similar to the [[https://ttt.rs64.net/en/docs/Reference/TexTransToolPSDImporter][TexTransTool PSD Importer]].
 
+** Supported
+- RGB/RGBA 8-bit layers (XCF v11 and earlier)
+- layer name/visibility/opacity (including FloatOpacity)
+- alpha lock
+- layer offsets, and a subset of blend modes
+- Layers are placed on the canvas with their offsets and raw RGBA pixels.
+** Not supported
+- Grayscale/Indexed or >8-bit images
+- layer folders/groups (all layers are imported flat)
+- layer masks
+- paths
+- text or other special layers/parasites
+- unsupported GIMP blend modes (fallback to Normal)
+- exotic compression outside the usual tiled RLE.
+
+
 ** Thanks
 - https://github.com/ReinaS-64892/TTT-ClipImporter
 
 - https://github.com/shivshank/xcf-rs
-
-** Supported / Not Supported (current state)
-- Supported: RGB/RGBA 8-bit layers (XCF v11 and earlier), layer name/visibility/opacity (including FloatOpacity), alpha lock, layer offsets, and a subset of blend modes. Layers are placed on the canvas with their offsets and raw RGBA pixels.
-- Not supported: Grayscale/Indexed or >8-bit images; layer folders/groups (all layers are imported flat); layer masks, paths, text or other special layers/parasites; unsupported GIMP blend modes (fallback to Normal); exotic compression outside the usual tiled RLE.
