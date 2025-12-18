@@ -47,19 +47,20 @@ jobs:
 
       - name: Build VPM package zip
         id: prep
+        shell: bash
         run: |
           set -euo pipefail
           EXCLUDE_LIST_FILE="$(mktemp)"
-          cat <<'EOF' > "${EXCLUDE_LIST_FILE}"
-.git
-.github
-dist
-obj
-Library
-Temp
-Logs
-UserSettings
-EOF
+          printf "%s\n" \
+            .git \
+            .github \
+            dist \
+            obj \
+            Library \
+            Temp \
+            Logs \
+            UserSettings \
+            > "${EXCLUDE_LIST_FILE}"
           if [ -n "${EXCLUDE_OVERRIDE}" ]; then
             printf "%s\n" "${EXCLUDE_OVERRIDE}" >> "${EXCLUDE_LIST_FILE}"
           fi
@@ -67,7 +68,7 @@ EOF
           mkdir -p dist/package
 
           if [ -n "${INCLUDE_OVERRIDE}" ]; then
-            echo "${INCLUDE_OVERRIDE}" | while IFS= read -r path || [ -n "$path" ]; do
+            printf "%s\n" "${INCLUDE_OVERRIDE}" | while IFS= read -r path || [ -n "$path" ]; do
               [ -z "$path" ] && continue
               if [ -e "${PACKAGE_ROOT}/${path}" ]; then
                 cp -r "${PACKAGE_ROOT}/${path}" dist/package/
