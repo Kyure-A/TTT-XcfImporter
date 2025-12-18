@@ -7,8 +7,21 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag name (e.g., v0.1.0)"
-        required: true
+        description: "Release tag name (e.g., v0.1.0). If empty, uses ref/release tag."
+        required: false
+      package_root:
+        description: "Path to package root (contains package.json)"
+        required: false
+        default: "."
+      include_paths:
+        description: "Newline-separated file/dir paths to include in the zip"
+        required: false
+      zip_basename:
+        description: "Zip base name (prefix before version); default is repo name"
+        required: false
+      version:
+        description: "Override version for zip filename (defaults to package.json version)"
+        required: false
 
 permissions:
   contents: write
@@ -17,7 +30,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.event.release.tag_name }}
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.event.release.tag_name || github.ref_name }}
+      PACKAGE_ROOT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.package_root || '.' }}
+      ZIP_BASENAME: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.zip_basename || github.event.repository.name }}
+      INCLUDE_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.include_paths || '' }}
+      VERSION_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,19 +45,60 @@ jobs:
         id: prep
         run: |
           set -euo pipefail
+          INCLUDE_LIST_FILE="$(mktemp)"
+          if [ -n "${INCLUDE_OVERRIDE}" ]; then
+            printf "%s\n" "${INCLUDE_OVERRIDE}" > "${INCLUDE_LIST_FILE}"
+          else
+            cat <<'EOF' > "${INCLUDE_LIST_FILE}"
+package.json
+README.md
+README.md.meta
+README.org
+README.org.meta
+LICENSE
+LICENSE.meta
+Editor
+Editor.meta
+Runtime
+Runtime.meta
+XcfParser
+XcfParser.meta
+EOF
+          fi
+
           mkdir -p dist/package
-          cp package.json README.org README.org.meta LICENSE LICENSE.meta dist/package/
-          cp -r Editor Editor.meta Runtime Runtime.meta XcfParser XcfParser.meta dist/package/
-          PKG_VERSION=$(jq -r '.version' package.json)
-          ZIP_NAME="TTTXcfImporter-${PKG_VERSION}.zip"
+          while IFS= read -r path || [ -n "$path" ]; do
+            [ -z "$path" ] && continue
+            if [ -e "${PACKAGE_ROOT}/${path}" ]; then
+              cp -r "${PACKAGE_ROOT}/${path}" dist/package/
+            else
+              echo "Skipping missing path: ${PACKAGE_ROOT}/${path}"
+            fi
+          done < "${INCLUDE_LIST_FILE}"
+
+          PKG_VERSION="${VERSION_OVERRIDE}"
+          if [ -z "${PKG_VERSION}" ]; then
+            if [ -f "${PACKAGE_ROOT}/package.json" ]; then
+              PKG_VERSION=$(jq -r '.version' "${PACKAGE_ROOT}/package.json")
+            else
+              PKG_VERSION=""
+            fi
+          fi
+
+          ZIP_NAME="${ZIP_BASENAME}"
+          if [ -n "${PKG_VERSION}" ] && [ "${PKG_VERSION}" != "null" ]; then
+            ZIP_NAME="${ZIP_NAME}-${PKG_VERSION}"
+          fi
+          ZIP_NAME="${ZIP_NAME}.zip"
+
           (
             cd dist/package
             zip -r "../${ZIP_NAME}" .
           )
           echo "zip_path=dist/${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+          echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
 
-      - name: Upload artifact (manual run)
-        if: github.event_name == 'workflow_dispatch'
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: vpm-package
