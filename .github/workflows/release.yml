@@ -1,0 +1,43 @@
+name: Release VPM Package
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build VPM package zip
+        id: prep
+        run: |
+          set -euo pipefail
+          mkdir -p dist/package
+          cp package.json README.org README.org.meta LICENSE LICENSE.meta dist/package/
+          cp -r Editor Editor.meta Runtime Runtime.meta XcfParser XcfParser.meta dist/package/
+          PKG_VERSION=$(jq -r '.version' package.json)
+          ZIP_NAME="TTTXcfImporter-${PKG_VERSION}.zip"
+          (
+            cd dist/package
+            zip -r "../${ZIP_NAME}" .
+          )
+          echo "zip_path=dist/${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vpm-package
+          path: ${{ steps.prep.outputs.zip_path }}
+
+      - name: Upload to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.prep.outputs.zip_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
