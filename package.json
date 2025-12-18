@@ -1,0 +1,18 @@
+{
+    "name": "moe.kyre.ttt-xcf-importer",
+    "version": "0.1.0",
+    "displayName": "TTTXcfImporter",
+    "description": "An experimental package for importing GIMP’s native image format, XCF, in a manner similar to the TexTransTool PSD Importer. ",
+    "unity": "2022.3",
+    "license": "MIT",
+    "author": {
+        "name": "Kyure_A",
+        "url": "https://github.com/Kyure-A/TTT-XcfImporter"
+    },
+    "dependencies": {
+        "net.rs64.tex-trans-tool": "^1.1.0-beta.7"
+    },
+    "vpmDependencies": {
+        "net.rs64.tex-trans-tool": "^1.1.0-beta.7"
+    }
+}
